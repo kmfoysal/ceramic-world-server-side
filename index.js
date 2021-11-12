@@ -24,6 +24,7 @@ async function run (){
         await client.connect();
         const database = client.db('ceramic_world');
         const productsCollection = database.collection('products');
+        const ordersCollection = database.collection('orders');
         const usersCollection = database.collection('users');
 
 
@@ -33,6 +34,13 @@ async function run (){
             const products = await cursor.toArray();
             res.send(products);
         })
+
+        // Post API for Orders 
+        app.post('/orders', async(req, res)=>{
+          const order = req.body;
+          const result = await ordersCollection.insertOne(order);
+          res.json(result)
+      })
 
 
     }
