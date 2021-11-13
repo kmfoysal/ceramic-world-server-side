@@ -45,6 +45,20 @@ async function run (){
       })
 
 
+      // Get Api for Admin Access 
+      app.get('/users/:email', async(req,res)=>{
+        const email = req.params.email;
+        const query = {email:email};
+        const user = await usersCollection.findOne(query);
+        let isAdmin = false;
+
+        if(user?.role === 'admin'){
+          isAdmin = true;
+        }
+        res.json({admin : isAdmin});
+      })
+
+
         // Post API for Orders 
         app.post('/orders', async(req, res)=>{
           const order = req.body;
@@ -67,6 +81,16 @@ async function run (){
         const options = {upsert:true};
         const updateUser = {$set: user};
         const result = await usersCollection.updateOne(filter, updateUser, options)
+        res.json(result);
+      })
+
+
+      // Put api for update user role
+      app.put('/users/admin', async(req, res)=>{
+        const user = req.body;
+        const filter = {email: user.email};
+        const updateUser = {$set: {role: 'admin'}};
+        const result = await usersCollection.updateOne(filter, updateUser)
         res.json(result);
       })
       
