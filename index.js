@@ -26,6 +26,7 @@ async function run (){
         const productsCollection = database.collection('products');
         const ordersCollection = database.collection('orders');
         const usersCollection = database.collection('users');
+        const reviewsCollection = database.collection('reviews');
 
 
         // GET Products Data API 
@@ -35,6 +36,13 @@ async function run (){
             res.send(products);
         })
 
+        // GET Reviews API 
+        app.get('/reviews', async(req, res)=>{
+          const cursor = reviewsCollection.find({});
+          const reviews = await cursor.toArray();
+          res.send(reviews);
+      })
+
          // GET API For Orders
          app.get('/orders', async(req, res)=>{
           const email = req.query.email;
@@ -42,6 +50,13 @@ async function run (){
           const cursor = ordersCollection.find(query);
           const orders = await cursor.toArray();
           res.send(orders);
+      })
+
+        // GET API For All Orders
+        app.get('/allOrders', async(req, res)=>{
+          const cursor = ordersCollection.find({});
+          const allOrders = await cursor.toArray();
+          res.send(allOrders);
       })
 
 
@@ -73,6 +88,23 @@ async function run (){
           res.json(result)
       })
 
+      // Post Api for Add Products 
+      app.post('/products', async(req, res)=>{
+        const newProduct = req.body;
+        const result = await productsCollection.insertOne(newProduct);
+        res.json(result);
+
+      })
+
+       // Post Api for Add Reviews 
+       app.post('/reviews', async(req, res)=>{
+        const newReview = req.body;
+        const result = await reviewsCollection.insertOne(newReview);
+        console.log(req.body);
+        res.json(result);
+
+      })
+
 
       // Put api for upsart google login
       app.put('/users', async(req, res)=>{
@@ -93,6 +125,20 @@ async function run (){
         const result = await usersCollection.updateOne(filter, updateUser)
         res.json(result);
       })
+
+
+      // Update Order Status to Approved
+       app.put('/changeStatus/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const updateDoc = {
+            $set: {
+                status: 'Shipped'
+            }
+        };
+        const result = await ordersCollection.updateOne(query, updateDoc);
+        res.json(result)
+    })
       
 
        // DELETE API Orders
@@ -103,6 +149,13 @@ async function run (){
         res.json(result);
       })
 
+      // DELETE API Products
+      app.delete('/products/:id', async(req, res)=>{
+        const id = req.params.id;
+        const query = {_id: ObjectId(id)};
+        const result = await productsCollection.deleteOne(query);
+        res.json(result);
+      })
 
     }
     finally{
